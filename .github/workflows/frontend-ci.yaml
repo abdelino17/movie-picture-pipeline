@@ -84,9 +84,5 @@ jobs:
       - name: Get code
         uses: actions/checkout@v3
 
-      - name: Get Hash
-        id: hash
-        run: echo "git_hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_HASH
-
       - name: Build the docker image
         run: docker build .
