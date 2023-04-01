@@ -1,15 +1,84 @@
-name: Continuous Integration
+name: Backend Continuous Integration
 
 on:
   workflow_dispatch:
 
-  pull_request:
-    types:
-      - opened
-      - reopened
+  push:
+    branches:
+      - main
+
+  # pull_request:
+  #   types:
+  #     - opened
+  #     - reopened
 
 jobs:
-  linting:
+  lint:
+    name: Lint job
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend
     steps:
-      - run: echo "Testing all the things..."
+      - name: Get code
+        uses: actions/checkout@v3
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/virtualenvs
+          key: deps-python-${{ hashFiles('**/Pipfile.lock') }}
+
+      - name: Install dependencies
+        run: pipenv install
+
+      - name: Run lint
+        run: pipenv run lint
+
+  test:
+    name: Test job
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/virtualenvs
+          key: deps-python-${{ hashFiles('**/Pipfile.lock') }}
+
+      - name: Install dependencies
+        run: pipenv install
+
+      - name: Run test
+        run: pipnv run test
+
+  build:
+    name: Build job
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    if: success()
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+
+      - name: Build the docker image
+        run: docker build .
