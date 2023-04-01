@@ -86,7 +86,7 @@ jobs:
         run: |
           docker build \
             --build-arg=REACT_APP_MOVIE_API_URL=http://backend:5000 \
-            -t ${{ env.IMAGE_NAME }}:${GITHUB_SHA::7} \
+            -t $IMAGE_NAME:${GITHUB_SHA::7} \
             .
 
       - name: Configure AWS credentials
@@ -94,7 +94,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -103,8 +103,7 @@ jobs:
       - name: Publish the docker image to ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.IMAGE_NAME }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker tag ECR_REPOSITORY:${GITHUB_SHA::7} $REGISTRY/$ECR_REPOSITORY:${GITHUB_SHA::7}
-          docker push $REGISTRY/$ECR_REPOSITORY:${GITHUB_SHA::7}
+          docker tag ECR_REPOSITORY:${GITHUB_SHA::7} $REGISTRY/$IMAGE_NAME:${GITHUB_SHA::7}
+          docker push $REGISTRY/$IMAGE_NAME:${GITHUB_SHA::7}
