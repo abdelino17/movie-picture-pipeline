@@ -105,5 +105,5 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker tag ECR_REPOSITORY:${GITHUB_SHA::7} $REGISTRY/$IMAGE_NAME:${GITHUB_SHA::7}
+          docker tag $ECR_REPOSITORY:${GITHUB_SHA::7} $REGISTRY/$IMAGE_NAME:${GITHUB_SHA::7}
           docker push $REGISTRY/$IMAGE_NAME:${GITHUB_SHA::7}
