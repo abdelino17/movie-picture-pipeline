@@ -114,6 +114,8 @@ jobs:
           aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region ${{ vars.AWS_REGION }}
 
       - name: Deploy the Docker image to Amazon EKS
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           cd k8s
           kustomize edit set image frontend=$REGISTRY/$IMAGE_NAME:release-${GITHUB_SHA::7}
